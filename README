@@ -14,10 +14,14 @@ theS <- getA(crlmmOut) * 2
 
 colnames(theS) <- paste(grps, 1:7, sep='')
 
-library(pd.mapping250k.nsp)
-snpInfo <- dbGetQuery(db(pd.mapping250k.nsp), 'SELECT man_fsetid, chrom, physical_pos FROM featureSet WHERE man_fsetid LIKE "SNP%"')
+pkgname <- annotation(crlmmOut)
+
+library(pkgname, character.only=TRUE)
+conn <- db(get(pkgname))
+sql <- 'SELECT man_fsetid, chrom, physical_pos FROM featureSet WHERE man_fsetid LIKE "SNP%"'
+snpInfo <- dbGetQuery(conn, sql)
 i <- match(rownames(theS), snpInfo[['man_fsetid']])
-theS <- theS[i]
+theS <- theS[i,,]
 
 
 
