@@ -53,3 +53,34 @@ plot(segment.smoothed.CNA.object, plot.type='s')
 plot(segment.smoothed.CNA.object, plot.type='w')
 plot(sdundo.CNA.object, plot.type='s')
 dev.off()
+
+madThreshold <- function (xout, threshold = 1){
+    if (!inherits(xout, "DNAcopy"))
+        stop("First arg must be of class DNAcopy")
+    nsample <- ncol(xout$data) - 2
+    snames <- names(xout$data)
+    status <- matrix(0L, nr=nrow(xout$data), nc=nsample)
+    colnames(status) <- snames[-(1:2)]
+    for (i in 1:nsample){
+        gain <- loss <- rep(FALSE, nr=nrow(xout$data))
+        j <- i+2L
+        sout <- xout$output[xout$output$ID == snames[j], ]
+        xmad <- mad(na.omit(xout$data[, j]) - rep(sout$seg.mean, sout$num.mark))
+
+        genomdat <- xout$data[, j]
+        ii <- which(is.finite(genomdat))
+        segout <- xout$output[xout$output$ID == snames[j],]
+        segmean <- rep(segout$seg.mean, segout$num.mark)
+        stat <- (segmean - median(segmean))/xmad
+        gain[ii] <- stat > threshold
+        loss[ii] <- stat < -threshold
+        status[,i] <- gain-loss
+
+    }
+    out <- list(chrom=xout$data$chrom,
+                maploc=xout$data$maploc,
+                status)
+    as.data.frame(out)
+}
+
+LossGain <- madThreshold(sdundo.CNA.object, 1)
