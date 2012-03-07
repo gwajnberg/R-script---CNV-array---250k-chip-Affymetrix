@@ -56,3 +56,6 @@ segm <- segmentData(norm)
 post <- postsegnormalize(segm)
 final <- CGHcall(post, nclass=3, prior='all')
 final <- ExpandCGHcall(final, segm)
+
+plot(final[,1])
+summaryPlot(final)
