@@ -41,13 +41,18 @@ raw <- data.frame(SNP=snpInfo[['man_fsetid']],
                   START_POS=snpInfo[['physical_pos']],
                   END_POS=snpInfo[['physical_pos']]+1L,
                   logRatioSense)
-rawAutosomes <- subset(raw, CHROMOSOME != 'X')
+raw$CHROMOSOME <- as.character(raw$CHROMOSOME)
+raw <- raw[complete.cases(raw),]
+rawAutosomes <- subset(raw, CHROMOSOME %in% as.character(1:22))
 rm(raw)
-rawAutosomes$CHROMOSOME <- as.integer(as.character(rawAutosomes$CHROMOSOME))
+rawAutosomes$CHROMOSOME <- as.integer(rawAutosomes$CHROMOSOME)
+idx <- with(rawAutosomes, order(CHROMOSOME, START_POS))
+rawAutosomes <- rawAutosomes[idx,]
+rm(idx)
 rawAutosomes <- cghRaw(rawAutosomes)
 prep <- preprocess(rawAutosomes)
 norm <- normalize(prep)
 segm <- segmentData(norm)
 post <- postsegnormalize(segm)
-final <- CGHcall(post)
+final <- CGHcall(post, nclass=3, prior='all')
 final <- ExpandCGHcall(final, segm)
