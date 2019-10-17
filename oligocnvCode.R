@@ -1,3 +1,5 @@
+# Exemplo de codigo a ser processado para microarranjo...
+
 library(oligo)
 ## Obtendo os arquivos
 fullFilenames <- list.celfiles(path="/storage/data/elf/MBra/teste",
